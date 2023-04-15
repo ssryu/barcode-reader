@@ -9,6 +9,7 @@ from websocket import WebSocketApp
 from database_manager import DatabaseManager
 
 
+# TODO: サーバから在庫更新結果を受け取り、音を鳴らす機能?
 class CameraClient:
     def __init__(
         self,
