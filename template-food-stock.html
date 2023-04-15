@@ -1,12 +1,17 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <title>食料庫管理システム</title>
 </head>
+
 <body>
     <div class="container">
         <div class="mt-5">
@@ -27,15 +32,15 @@
         let wss = new WebSocket('ws://localhost:' + WS_PORT)
 
         wss.onmessage = function (e) {
-            let target = $('#'+ e.data);
+            let target = $('#' + e.data);
             let mode = $('input:radio[name="io-mode"]:checked').val();
             wss.send(mode + ' ' + e.data)
 
-            if(target[0]){
-                target.css('background-color','yellow')
+            if (target[0]) {
+                target.css('background-color', 'yellow')
                 let logMsg = new Date().toLocaleString()
 
-                switch (mode){
+                switch (mode) {
                     case 'in':
                         target.text(Number(target.text()) + 1)
                         logMsg += '　' + target.prev().text() + '　を入庫した。'
@@ -45,11 +50,11 @@
                         logMsg += '　' + target.prev().text() + '　を出庫した。'
                 }
 
-                $('#log-area').append('<p>'+ logMsg + '</p>')
+                $('#log-area').append('<p>' + logMsg + '</p>')
 
-                setTimeout(function (){
-                    target.css('background-color','transparent')
-                },500)
+                setTimeout(function () {
+                    target.css('background-color', 'transparent')
+                }, 500)
             }
         }
 
@@ -76,4 +81,5 @@
             })
     </script>
 </body>
+
 </html>
