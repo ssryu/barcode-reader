@@ -1,0 +1,5 @@
+opencv-python
+requests
+openpyxl
+pyzbar
+git+https://github.com/Pithikos/python-websocket-server
