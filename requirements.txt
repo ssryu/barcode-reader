@@ -2,4 +2,5 @@ opencv-python
 requests
 openpyxl
 pyzbar
+websocket-client
 git+https://github.com/Pithikos/python-websocket-server
