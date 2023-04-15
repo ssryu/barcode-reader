@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <title>食料庫管理システム</title>
+</head>
+<body>
+    <div class="container">
+        <div class="mt-5">
+            <input type="radio" class="btn-check" name="io-mode" id="out-radio" value="out" checked>
+            <label class="btn btn-outline-danger" for="out-radio">出庫（OUT）</label>
+            <input type="radio" class="btn-check" name="io-mode" id="in-radio" value="in">
+            <label class="btn btn-outline-success" for="in-radio">入庫（IN）</label>
+        </div>
+        <table class="table mt-5" id="tb">
+        </table>
+        <div id="log-area" class="border mt-3">
+            <p>ログ</p>
+        </div>
+    </div>
+    <script>
+        const HTTP_PORT = 8080
+        const WS_PORT = 8081
+        let wss = new WebSocket('ws://localhost:' + WS_PORT)
+
+        wss.onmessage = function (e) {
+            let target = $('#'+ e.data);
+            let mode = $('input:radio[name="io-mode"]:checked').val();
+            wss.send(mode + ' ' + e.data)
+
+            if(target[0]){
+                target.css('background-color','yellow')
+                let logMsg = new Date().toLocaleString()
+
+                switch (mode){
+                    case 'in':
+                        target.text(Number(target.text()) + 1)
+                        logMsg += '　' + target.prev().text() + '　を入庫した。'
+                        break
+                    case 'out':
+                        target.text(Number(target.text()) - 1)
+                        logMsg += '　' + target.prev().text() + '　を出庫した。'
+                }
+
+                $('#log-area').append('<p>'+ logMsg + '</p>')
+
+                setTimeout(function (){
+                    target.css('background-color','transparent')
+                },500)
+            }
+        }
+
+        $.ajax({
+            url: 'http://localhost:' + HTTP_PORT,
+            type: 'POST',
+            dataType: 'json',
+        }).then(
+            function (data) {
+                let elem = '<thead><tr><th>JAN</th><th>商品名</th><th>在庫</th><th>下限</th></tr></thead>'
+                elem += '<tbody>'
+
+                $.each(data, function (key, item) {
+                    elem += '<tr>'
+                    elem += '<td>' + item.jan + '</td>'
+                    elem += '<td>' + item.product_name + '</td>'
+                    elem += '<td id="' + item.jan + '">' + item.stock + '</td>'
+                    elem += '<td class="text-black-50">' + item.lower + '</td>'
+                    elem += '<tr>'
+                })
+
+                elem += '</tbody>'
+                $('#tb').html(elem)
+            })
+    </script>
+</body>
+</html>
