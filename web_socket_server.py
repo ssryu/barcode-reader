@@ -3,6 +3,7 @@ import threading
 from websocket_server import WebsocketServer
 
 from database_manager import DatabaseManager
+from line_notifier import LineNotifier
 
 
 class WebSocketServer:
@@ -10,12 +11,15 @@ class WebSocketServer:
         self,
         host="localhost",
         port=8081,
+        line_notify_access_token=None,
     ):
         self.web_socket_server = WebsocketServer(host=host, port=port)
         self.web_socket_server.set_fn_new_client(self.new_client)
         self.web_socket_server.set_fn_message_received(self.message_received)
 
         self.db = DatabaseManager()
+        if line_notify_access_token is not None:
+            self.line_notifier = LineNotifier(line_notify_access_token)
 
     def start(self):
         threading.Thread(target=self.web_socket_server.run_forever).start()
@@ -49,6 +53,6 @@ class WebSocketServer:
             self.db.update_stock(jancode, 1)
         elif mode == "out":
             self.db.update_stock(jancode, -1)
-            # alert = self.db.check_alert(code)
-            # if alert is not None:
-            #     self.line_notify(alert['product_name'] + 'がなくなるぞ！')
+            alert = self.db.check_alert(jancode)
+            if self.line_notifier and alert is not None:
+                self.line_notifier.notify(alert["product_name"] + "がなくなるぞ！")
